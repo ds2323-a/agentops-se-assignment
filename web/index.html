@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentOps · AI 分级规划与失效分析平台</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div><div class="brand-name">AgentOps</div><div class="brand-sub">智能研发调度平台</div></div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="overview"><span class="ico">◫</span> 工作台概览</button>
+        <button class="nav-item" data-view="tasks"><span class="ico">☰</span> 任务管理</button>
+        <button class="nav-item" data-view="planning"><span class="ico">⌘</span> 分级规划</button>
+        <button class="nav-item" data-view="analysis"><span class="ico">◈</span> 失效分析</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-dot">A</div>
+        <div><div class="user-name">admin</div><div class="user-role">系统管理员</div></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><h1 id="page-title">工作台概览</h1><p id="page-sub">AI Agent 驱动的软件工程全流程调度与可靠性监控</p></div>
+        <div class="topbar-actions">
+          <span class="badge-live"><i></i> 系统运行中</span>
+          <button class="btn primary" id="btn-new">+ 新建任务</button>
+        </div>
+      </header>
+
+      <!-- 概览 -->
+      <section class="view active" id="view-overview">
+        <div class="stats" id="stats"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>任务分级分布</h3><span class="muted">L1 自动 / L2 协作 / L3 人工</span></div>
+            <div id="level-chart" class="chart-box"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Agent 可靠性评级</h3><span class="muted">基于失效评分</span></div>
+            <div id="reliability" class="chart-box"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>最近任务</h3><button class="link" data-goto="tasks">查看全部 →</button></div>
+          <div id="recent-tasks" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- 任务管理 -->
+      <section class="view" id="view-tasks">
+        <div class="card">
+          <div class="card-head">
+            <h3>任务列表</h3>
+            <div class="filters">
+              <select id="filter-status"><option value="">全部状态</option><option value="todo">待开始</option><option value="running">进行中</option><option value="done">已完成</option><option value="blocked">阻塞</option></select>
+              <select id="filter-level"><option value="">全部等级</option><option value="L1">L1 自动</option><option value="L2">L2 协作</option><option value="L3">L3 人工</option></select>
+              <input id="filter-kw" placeholder="搜索任务…" />
+            </div>
+          </div>
+          <div id="task-table" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- 分级规划 -->
+      <section class="view" id="view-planning">
+        <div class="card">
+          <div class="card-head"><h3>AI 分级规划器</h3><span class="muted">输入任务描述，自动生成 L1/L2/L3 分级与子任务规划</span></div>
+          <div class="planner">
+            <div class="planner-input">
+              <label>任务标题</label>
+              <input id="plan-title" placeholder="例如：批量导出销售数据并清洗" />
+              <label>任务描述</label>
+              <textarea id="plan-desc" rows="3" placeholder="补充任务背景、交付物、约束…"></textarea>
+              <button class="btn primary wide" id="btn-plan">生成分级规划</button>
+            </div>
+            <div class="planner-result" id="plan-result">
+              <div class="empty-state">填写左侧信息，点击「生成分级规划」查看 AI 的分级决策与任务拆解。</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>已规划任务的层级拆解</h3><span class="muted">选择一个任务查看其规划树</span></div>
+          <div class="plan-list" id="plan-list"></div>
+        </div>
+      </section>
+
+      <!-- 失效分析 -->
+      <section class="view" id="view-analysis">
+        <div class="stats" id="analysis-stats"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3>缺陷帕累托图</h3><span class="muted">定位关键少数缺陷类别</span></div>
+            <div id="pareto" class="chart-box"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Agent 失效评分排行</h3><span class="muted">分数越低越需人工介入</span></div>
+            <div id="score-list" class="chart-box"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>失效复盘与改进建议</h3><span class="muted">Agent 失效 → 升级路径</span></div>
+          <div id="review-list" class="table-wrap"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 新建任务弹窗 -->
+  <div class="modal-mask" id="modal">
+    <div class="modal">
+      <div class="modal-head"><h3>新建研发任务</h3><button class="close" id="modal-close">×</button></div>
+      <div class="modal-body">
+        <label>任务标题</label><input id="f-title" placeholder="必填，2-120 字符" />
+        <label>任务描述</label><textarea id="f-desc" rows="2" placeholder="任务背景与交付物"></textarea>
+        <div class="form-row">
+          <div><label>所属项目</label><input id="f-project" value="AgentOps" /></div>
+          <div><label>负责人</label><input id="f-owner" value="alice" /></div>
+        </div>
+        <div class="form-row">
+          <div><label>优先级</label><select id="f-priority"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+          <div><label>分级（留空由 AI 自动判定）</label><select id="f-level"><option value="">自动分级</option><option>L1</option><option>L2</option><option>L3</option></select></div>
+        </div>
+        <div id="f-plan-preview" class="plan-preview"></div>
+        <div class="modal-foot"><button class="btn" id="modal-cancel">取消</button><button class="btn primary" id="f-submit">创建任务</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
